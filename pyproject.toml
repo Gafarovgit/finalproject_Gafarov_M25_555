@@ -14,7 +14,7 @@ prettytable = "^3.10.0"
 ruff = "^0.4.4"
 
 [tool.poetry.scripts]
-project = "main:main"
+project = "valutatrade_hub.cli.interface:main"
 
 [tool.ruff]
 line-length = 88
@@ -22,11 +22,11 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
+  "E",
+  "W",
+  "F",
+  "I",
+  "B",
 ]
 
 [tool.ruff.format]

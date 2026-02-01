@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "user_id": 1,
+    "username": "test1",
+    "hashed_password": "hash1"
+  },
+  {
+    "user_id": 2,
+    "username": "test2",
+    "hashed_password": "hash2"
+  },
+  {
+    "user_id": 1,
+    "username": "test",
+    "hashed_password": "hash",
+    "salt": "salt",
+    "registration_date": "2024-01-01"
+  },
+  {
+    "user_id": 3,
+    "username": "demo",
+    "hashed_password": "5973d38c098b68e99ec2afb5cb644e0d168044aa6b9795d7ba0019d07902cb18",
+    "salt": "838e2e98f5d06be7",
+    "registration_date": "2026-02-01T16:14:06.562249"
+  }
+]

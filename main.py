@@ -1,0 +1,8 @@
+"""Точка входа в приложение валютного кошелька."""
+
+import sys
+
+from valutatrade_hub.cli.interface import main
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "user_id": 1,
+    "wallets": {
+      "USD": {
+        "balance": 100.0
+      }
+    }
+  },
+  {
+    "user_id": 3,
+    "wallets": {
+      "USD": {
+        "currency_code": "USD",
+        "balance": 1000.0
+      }
+    }
+  }
+]

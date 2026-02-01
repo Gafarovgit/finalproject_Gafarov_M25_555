@@ -1,0 +1,7 @@
+INFO 2026-02-01T13:43:18 TEST_ACTION user="1" currency="N/A" amount="0.0" rate="N/A" base="USD" result="OK"
+INFO 2026-02-01T13:43:18 TEST user="test_user" currency="USD" amount="100.0" rate="1.0" base="USD" result="OK"
+INFO 2026-02-01T13:47:57 TEST_ACTION user="1" currency="N/A" amount="0.0" rate="N/A" base="USD" result="OK"
+INFO 2026-02-01T13:47:57 TEST user="test_user" currency="USD" amount="100.0" rate="1.0" base="USD" result="OK"
+INFO 2026-02-01T15:50:55 TEST_FUNCTION user="2" currency="N/A" amount="0.0" rate="N/A" base="USD" result="OK"
+INFO 2026-02-01T15:57:25 TEST_FUNCTION user="2" currency="N/A" amount="0.0" rate="N/A" base="USD" result="OK"
+INFO 2026-02-01T16:09:26 TEST_FUNCTION user="2" currency="N/A" amount="0.0" rate="N/A" base="USD" result="OK"

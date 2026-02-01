@@ -1,7 +1,6 @@
 """Модели данных для валютного кошелька."""
 
 import hashlib
-import json
 from datetime import datetime
 from typing import Dict, Optional
 
@@ -13,24 +12,33 @@ class User:
         self,
         user_id: int,
         username: str,
-        password: str,
-        salt: Optional[str] = None,
-        registration_date: Optional[datetime] = None,
+        hashed_password: str,
+        salt: str,
+        registration_date: str
     ):
         """Инициализация пользователя.
 
         Args:
             user_id: Уникальный идентификатор пользователя
             username: Имя пользователя
-            password: Пароль в открытом виде
-            salt: Соль для хэширования (генерируется, если не указана)
-            registration_date: Дата регистрации (текущая, если не указана)
+            hashed_password: Уже хэшированный пароль
+            salt: Соль для хэширования
+            registration_date: Дата регистрации в строковом формате
         """
         self._user_id = user_id
-        self.username = username  # Используем сеттер
-        self._salt = salt or self._generate_salt()
-        self._hashed_password = self._hash_password(password)
-        self._registration_date = registration_date or datetime.now()
+        self._username = username
+        self._hashed_password = hashed_password
+        self._salt = salt
+
+        # Преобразуем строку в datetime, если передана строка
+        if isinstance(registration_date, str):
+            self._registration_date = datetime.fromisoformat(registration_date)
+        else:
+            self._registration_date = registration_date
+
+        # Валидация имени пользователя
+        if not self._username or not self._username.strip():
+            raise ValueError("Имя пользователя не может быть пустым")
 
     @property
     def user_id(self) -> int:
@@ -67,12 +75,24 @@ class User:
     def _generate_salt(self) -> str:
         """Генерация случайной соли."""
         import secrets
-
-        return secrets.token_hex(8)
+        import string
+        alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+        return ''.join(secrets.choice(alphabet) for _ in range(8))
 
     def _hash_password(self, password: str) -> str:
-        """Хэширование пароля с солью."""
-        return hashlib.sha256((password + self._salt).encode()).hexdigest()
+        """Хэширование пароля с солью.
+        
+        Args:
+            password: Пароль для хэширования
+            
+        Returns:
+            Хэшированный пароль
+        """
+        # Создаем хэш SHA-256 из пароля и соли
+        hash_object = hashlib.sha256()
+        hash_object.update(password.encode('utf-8'))
+        hash_object.update(self._salt.encode('utf-8'))
+        return hash_object.hexdigest()
 
     def verify_password(self, password: str) -> bool:
         """Проверка пароля.
@@ -83,7 +103,8 @@ class User:
         Returns:
             True если пароль верный, иначе False
         """
-        return self._hash_password(password) == self._hashed_password
+        test_hash = self._hash_password(password)
+        return test_hash == self._hashed_password
 
     def change_password(self, new_password: str):
         """Изменение пароля пользователя.
@@ -93,6 +114,9 @@ class User:
         """
         if len(new_password) < 4:
             raise ValueError("Пароль должен быть не короче 4 символов")
+
+        # Генерируем новую соль и хэшируем пароль
+        self._salt = self._generate_salt()
         self._hashed_password = self._hash_password(new_password)
 
     def get_user_info(self) -> dict:
@@ -134,9 +158,9 @@ class User:
         return cls(
             user_id=data["user_id"],
             username=data["username"],
-            password="dummy",  # Пароль не нужен, т.к. уже хэшированный
+            hashed_password=data["hashed_password"],
             salt=data["salt"],
-            registration_date=datetime.fromisoformat(data["registration_date"]),
+            registration_date=data["registration_date"],
         )
 
 
