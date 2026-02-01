@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "finalproject-gafarov-m25-555"
+version = "0.1.0"
+description = "Валютный кошелек для торговли валютами"
+authors = ["Гафаров <gafarov@example.com>"]
+readme = "README.md"
+packages = [{include = "valutatrade_hub"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+prettytable = "^3.10.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.4.4"
+
+[tool.poetry.scripts]
+project = "main:main"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = [
+  "E",  # pycodestyle errors
+  "W",  # pycodestyle warnings
+  "F",  # pyflakes
+  "I",  # isort
+  "B",  # flake8-bugbear
+]
+
+[tool.ruff.format]
+quote-style = "double"
