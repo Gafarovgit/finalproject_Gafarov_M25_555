@@ -1,0 +1,2 @@
+{"version": 2, "width": 160, "height": 18, "timestamp": 1769972842, "env": {"SHELL": "/bin/bash", "TERM": "xterm-256color"}}
+[0.003466, "o", "sh: 1: ./demo_script.sh: not found\r\n"]

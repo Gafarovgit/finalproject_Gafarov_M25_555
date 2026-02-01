@@ -1,7 +1,70 @@
 {
-  "USD_BTC": {
-    "rate": 2e-05,
-    "updated_at": "2026-02-01T16:14:07.837793",
-    "source": "API"
-  }
+  "pairs": {
+    "BNB_USD": {
+      "rate": 760.82,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "BTC_USD": {
+      "rate": 77743.0,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "ADA_USD": {
+      "rate": 0.289361,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "ETH_USD": {
+      "rate": 2337.32,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "SOL_USD": {
+      "rate": 103.13,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "EUR_USD": {
+      "rate": 1.0821,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "GBP_USD": {
+      "rate": 1.2628,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "JPY_USD": {
+      "rate": 0.0067,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "CAD_USD": {
+      "rate": 0.7412,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "AUD_USD": {
+      "rate": 0.6589,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "CHF_USD": {
+      "rate": 1.1284,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "CNY_USD": {
+      "rate": 0.1389,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    },
+    "RUB_USD": {
+      "rate": 0.0108,
+      "updated_at": "2026-02-01T19:05:57.815874Z",
+      "source": "Multiple Sources"
+    }
+  },
+  "last_refresh": "2026-02-01T19:05:57.815874Z"
 }

@@ -1,7 +1,9 @@
 """Командный интерфейс приложения."""
 
 import argparse
+import json
 import sys
+from datetime import datetime
 
 from prettytable import PrettyTable
 
@@ -24,6 +26,7 @@ from valutatrade_hub.core.usecases import (
     sell_currency,
 )
 from valutatrade_hub.core.utils import format_currency
+from valutatrade_hub.parser_service.usecases import ParserUseCases
 
 
 def is_authenticated() -> bool:
@@ -289,27 +292,127 @@ def get_rate_command(args):
     to_curr = args.to_currency.upper()
 
     try:
-        rate = get_exchange_rate(from_curr, to_curr)
+        # Используем парсер-сервис для получения курса
+        parser_usecases = ParserUseCases()
+        rate_data = parser_usecases.get_rate(from_curr, to_curr)
 
-        if rate:
-            print(f"Курс {from_curr}→{to_curr}: {rate:.6f}")
-            if rate != 0:
-                print(f"Обратный курс {to_curr}→{from_curr}: {1/rate:.6f}")
+        if args.json:
+            print(json.dumps(rate_data, indent=2, ensure_ascii=False))
             return 0
-        else:
-            print(f"Курс {from_curr}→{to_curr} недоступен")
-            return 1
+
+        print(f"Курс {from_curr}→{to_curr}: {rate_data['rate']:.6f}")
+        print(f"Обратный курс {to_curr}→{from_curr}: {rate_data['inverse_rate']:.6f}")
+        print(f"Источник: {rate_data['source']}")
+        print(f"Обновлено: {rate_data['updated_at']}")
+        
+        if not rate_data['is_fresh']:
+            print("⚠️  Данные могут быть устаревшими. Используйте 'update-rates' для обновления.")
+            
+        return 0
 
     except CurrencyNotFoundError as e:
-        print(f"Ошибка: {e}")
+        print(f"❌ {str(e)}")
         print("Используйте команду 'get-rate --list' для просмотра поддерживаемых валют")
         return 1
     except ApiRequestError as e:
-        print(f"Ошибка: {e}")
-        print("Повторите попытку позже")
+        print(f"❌ {str(e)}")
+        print("Повторите попытку позже или используйте 'update-rates' для обновления данных")
         return 1
     except Exception as e:
         print(f"Неизвестная ошибка: {e}")
+        return 1
+
+
+def update_rates_command(args):
+    """Обработка команды update-rates."""
+    try:
+        parser_usecases = ParserUseCases()
+        result = parser_usecases.update_rates(args.source)
+        
+        if args.json:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0
+        
+        if result["success"]:
+            print("✅ Обновление курсов выполнено успешно!")
+            print("\n📊 Результаты:")
+            
+            table = PrettyTable()
+            table.field_names = ["Источник", "Курсов получено", "Статус"]
+            
+            for source, count in result["results"].items():
+                status = "✅ Успех" if count > 0 else "❌ Ошибка"
+                table.add_row([source.capitalize(), count, status])
+            
+            print(table)
+            print(f"\n🕒 Последнее обновление: {result['summary'].get('last_refresh', 'Неизвестно')}")
+            print(f"📈 Всего пар в кэше: {result['summary'].get('total_pairs', 0)}")
+        else:
+            print("❌ Не удалось получить курсы ни из одного источника")
+            print("Проверьте подключение к интернету и настройки API.")
+            
+        return 0
+        
+    except Exception as e:
+        print(f"❌ Ошибка при обновлении курсов: {str(e)}")
+        print("Проверьте настройки API в файле .env")
+        return 1
+
+
+def show_rates_command(args):
+    """Обработка команды show-rates."""
+    try:
+        parser_usecases = ParserUseCases()
+        result = parser_usecases.show_rates(
+            currency=args.currency,
+            top=args.top,
+            base=args.base
+        )
+        
+        if args.json:
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0
+        
+        if not result["rates"]:
+            print(result.get("message", "Нет данных для отображения"))
+            return 0
+        
+        print(f"📊 Актуальные курсы (базовая валюта: {result['base_currency']})")
+        print(f"🕒 Последнее обновление: {result.get('last_refresh', 'Неизвестно')}")
+        print(f"📈 Всего пар: {result['total']}")
+        print()
+        
+        table = PrettyTable()
+        table.field_names = ["Валютная пара", "Курс", "Обновлено", "Источник"]
+        
+        for pair, data in result["rates"].items():
+            # Форматируем дату для удобного чтения
+            updated_at = data["updated_at"]
+            if updated_at:
+                try:
+                    dt = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+                    updated_str = dt.strftime("%d.%m.%Y %H:%M")
+                except:
+                    updated_str = updated_at
+            else:
+                updated_str = "Неизвестно"
+            
+            table.add_row([
+                pair,
+                data["formatted_rate"],
+                updated_str,
+                data["source"]
+            ])
+        
+        print(table)
+        return 0
+        
+    except CurrencyNotFoundError as e:
+        print(f"❌ {str(e)}")
+        print("Используйте команду 'show-rates' без параметров для списка всех валют.")
+        return 1
+    except Exception as e:
+        print(f"❌ Ошибка: {str(e)}")
         return 1
 
 
@@ -359,7 +462,7 @@ def main():
         "--amount", type=float, required=True, help="Количество продаваемой валюты"
     )
 
-    # Команда get-rate
+    # Команда get-rate (обновленная)
     rate_parser = subparsers.add_parser("get-rate", help="Получить курс валюты")
     rate_parser.add_argument(
         "--from", dest="from_currency", help="Исходная валюта"
@@ -369,6 +472,39 @@ def main():
     )
     rate_parser.add_argument(
         "--list", action="store_true", help="Показать список поддерживаемых валют"
+    )
+    rate_parser.add_argument(
+        "--json", action="store_true", help="Вывести результат в формате JSON"
+    )
+
+    # Команда update-rates (новая)
+    update_rates_parser = subparsers.add_parser(
+        "update-rates", help="Обновить курсы валют из внешних источников"
+    )
+    update_rates_parser.add_argument(
+        "--source",
+        choices=["coingecko", "exchangerate"],
+        help="Обновить только из указанного источника"
+    )
+    update_rates_parser.add_argument(
+        "--json", action="store_true", help="Вывести результат в формате JSON"
+    )
+
+    # Команда show-rates (новая)
+    show_rates_parser = subparsers.add_parser(
+        "show-rates", help="Показать актуальные курсы из кэша"
+    )
+    show_rates_parser.add_argument(
+        "--currency", "-c", help="Показать курсы только для указанной валюты"
+    )
+    show_rates_parser.add_argument(
+        "--top", type=int, help="Показать N самых дорогих криптовалют"
+    )
+    show_rates_parser.add_argument(
+        "--base", default="USD", help="Базовая валюта для отображения (по умолчанию: USD)"
+    )
+    show_rates_parser.add_argument(
+        "--json", action="store_true", help="Вывести результат в формате JSON"
     )
 
     # Если аргументы не переданы, показываем справку
@@ -396,6 +532,10 @@ def main():
         return sell_command(args)
     elif args.command == "get-rate":
         return get_rate_command(args)
+    elif args.command == "update-rates":
+        return update_rates_command(args)
+    elif args.command == "show-rates":
+        return show_rates_command(args)
     else:
         parser.print_help()
         return 0
